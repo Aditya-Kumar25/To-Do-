@@ -17,7 +17,7 @@ const userSchema =  new mongoose.Schema({
         minlength:8
     },
 },
-    {timestamp:true}
+    {timestamps:true}
 )
 
 export default mongoose.model("User",userSchema);

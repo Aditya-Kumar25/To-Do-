@@ -62,7 +62,7 @@ export const signup = async(req,res)=>{
 };
 
 export const getProfile = async (req,res)=>{
-    const user = await User.findById(req.user.id).select("password");
+    const user = await User.findById(req.user.id).select("-password");
     if(!user){
         return res.status(404).json({msg:"Maujood nahi hai"});
     }
