@@ -14,11 +14,11 @@ function handleChange(e){
     })
 }
 async function handleSubmit( e){
-    e.preventdefault();
+    e.preventDefault();
     setError("");
     try {
-        const res = await api.post("api/aut/login",form)
-        const {token,user} = req.data;
+        const res = await api.post("/api/auth/login",form)
+        const {token,user} = res.data;
         
         localStorage.setItem("token",token)
         localStorage.setItem("user",JSON.stringify(user))
@@ -49,7 +49,7 @@ async function handleSubmit( e){
                 onChange={handleChange}
                 required
                 />
-                <button type="submit">Signup</button>
+                <button type="submit">Login</button>
             </form>
         </div>
     )

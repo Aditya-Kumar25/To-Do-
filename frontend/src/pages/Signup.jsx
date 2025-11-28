@@ -15,14 +15,15 @@ function handleChange(e){
     })
 }
 async function handleSubmit( e){
-    e.preventdefault();
+    e.preventDefault();
     setMesage("")
     setError("")
     try {
-        const res = await api.post ("api/auth/login",form)
+        const res = await api.post ("/api/auth/signup",form)
         setMesage(res.data.msg || "Signup Successful")
     } catch (err) {
-        setMesage(res.data.msg || "Signup Fail")  
+        console.error("Signup error:", err.response?.data || err.message);
+        setMesage(err.data.msg || "Signup Fail")  
     }
     console.log("Data ",form)
 }
