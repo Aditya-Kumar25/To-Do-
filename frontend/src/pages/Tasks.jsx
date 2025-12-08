@@ -43,6 +43,13 @@ export function Tasks(){
               completed:task.completed ?? false
         })
     }
+    
+    function handleUpdateChange(e){
+        setUpdateTodo(prev => ({
+          ...prev,[e.target.name]: e.target.value
+        }))
+      }
+
     async function Edit(){
       const res = await api.put(`/api/tasks/${updatetodo.id}`,{
         title:updatetodo.title,
@@ -52,16 +59,35 @@ export function Tasks(){
         setTasks(prev=>prev.map(t => t._id === updatetodo.id ? {...t,...res.data}:t)  )
 
         setUpdateTodo({
-          id:"",title:"",description:"",completed:""
+          id:"",title:"",description:"",
         })
     }
-  
-  function handleUpdateChange(e){
-    setUpdateTodo(prev => ({
-      ...prev,[e.target.name]: e.target.value
-    }))
-  }
 
+    // Deletion
+    function Delete(id){
+      const confirm = window.confirm("DO you really want to delete this id?")
+      if(!confirm) return;
+
+      try {
+        api.delete(`/api/tasks/${id}`);
+        setTasks(prev => prev.filter(task => task._id!=id))
+
+      } catch (error) {
+        console.error("Deletion failed",error)
+      }
+    }
+
+    // function Toggle
+    async function ToggleCompleted(id,currentStatus) {
+      try {
+        const res = await api.put(`/api/tasks/${id}`,{completed : !currentStatus})
+
+        setTasks(prev=>prev.map(task=>task._id === id ? {...task,completed:res.data.completed}:task))
+        
+      } catch (error) {
+        console.error("Toggle Failed",error)
+      }
+    }
     return(
       <div>
          <h2>Your tasks</h2>
@@ -69,27 +95,36 @@ export function Tasks(){
          <input name="description" placeholder="description" value={addtodo.description} onChange={handleAdd}/>
          <button onClick={Add}>Add</button>
         
+         {/* List + Edit tasks */}
          <ul>
-            {tasks.map(task => (
-              <li key={task._id}> 
-              <h3>{task.title}</h3> 
-              <h4>{task.description}</h4>
-              <button onClick={()=> startedit(task)}>Edit</button>
-              <input name="title" placeholder="add updated title" value={updatetodo.title} onChange={handleUpdateChange} />
-            <input name="title" placeholder="add updated description" value={updatetodo.description} onChange={handleUpdateChange} />
-            <button onClick={Edit}>Save</button>
+            {tasks.map((task)=>(
+              <li key={task._id}>
+                {updatetodo.id===task._id ? (
+                  <div>
+                    <input name="title" placeholder="edit title" value={updatetodo.title}
+                      onChange={handleUpdateChange} />
+                      <input name="description" placeholder="edit description" value={updatetodo.description}
+                      onChange={handleUpdateChange} />
+                      <button onClick={Edit}>save</button>
+                  </div>
+                ):(
+                  // View Mode  
+                  <div>
+                    <h3>{task.title}</h3>
+                    <h4>{task.description}</h4>
+                    <i>{task.completed ? "Done":"Not Done"}</i>
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => ToggleCompleted(task._id, task.completed)}
+                    />
+                    <button onClick={()=>startedit(task)}>Edit</button>
+                    <button onClick={()=> Delete(task._id)}>Delete</button>
+                  </div>
+                )}
               </li>
-              
             ))}
          </ul>
-         {updatetodo.id && (
-          <div>
-            <h3>Edit Task</h3>
-            <input name="title" placeholder="add updated title" value={updatetodo.title} onChange={handleUpdateChange} />
-            <input name="description" placeholder="add updated description" value={updatetodo.description} onChange={handleUpdateChange} />
-            <button onClick={Edit}>Save</button>
-          </div>
-         )}
          
       </div>
     )
