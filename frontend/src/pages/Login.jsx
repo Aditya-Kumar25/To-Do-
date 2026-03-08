@@ -31,7 +31,7 @@ async function handleSubmit( e){
 }
     return(
         <div>
-            <h2>Login</h2>
+            <h2 >Login</h2>
             <form onSubmit={handleSubmit}>
                 <label >Email :  </label>
                 <input 
