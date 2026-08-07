@@ -18,9 +18,8 @@ async function handleSubmit( e){
     setError("");
     try {
         const res = await api.post("/api/auth/login",form)
-        const {token,user} = res.data;
+        const {user} = res.data;
         
-        localStorage.setItem("token",token)
         localStorage.setItem("user",JSON.stringify(user))
         console.log("Logged in",user)
         alert("Login Succesful")

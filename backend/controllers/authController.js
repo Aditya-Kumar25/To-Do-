@@ -12,6 +12,10 @@ export const signup = async(req,res)=>{
             return res.status(400).json({msg:"User already exists"});
         }
 
+        if (!password || password.length < 8) {
+            return res.status(400).json({ msg: "Password must be at least 8 characters long" });
+        }
+
         const hashedPassword = await bcrypt.hash(password,10);
 
         const newUser = new User({
@@ -51,6 +55,14 @@ export const signup = async(req,res)=>{
       { expiresIn: "1h" }
     );
 
+    // set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600000 // 1 hour
+    });
+
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email }
@@ -69,3 +81,15 @@ export const getProfile = async (req,res)=>{
     res.json(user);
 
 }
+
+export const checkAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ isAuthenticated: false, message: "User not found" });
+    }
+    res.json({ isAuthenticated: true, user });
+  } catch (err) {
+    res.status(500).json({ isAuthenticated: false, message: err.message });
+  }
+};
